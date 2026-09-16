@@ -25,18 +25,18 @@ export function HeaderRowPicker({ sheet, guess, value, onChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
         <span className="text-sm font-medium">{t('header.label', { sheet })}</span>
         <Select value={String(value)} onValueChange={(v) => onChange(Number(v))}>
-          <SelectTrigger className="w-[420px] max-w-full">
+          <SelectTrigger className="w-full min-w-0 sm:w-[420px] sm:max-w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {candidates.map((c) => (
               <SelectItem key={c.index} value={String(c.index)}>
-                <span className="tabular-nums">{t('header.row', { n: c.index + 1 })}</span>
+                <span className="shrink-0 tabular-nums">{t('header.row', { n: c.index + 1 })}</span>
                 {' — '}
-                <span className="opacity-70">
+                <span className="truncate opacity-70">
                   {c.preview.filter(Boolean).join(', ').slice(0, 60) || t('header.blank')}
                 </span>
               </SelectItem>

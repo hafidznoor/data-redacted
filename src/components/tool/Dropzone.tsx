@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import FolderComponent from '@/components/ui/folder-component'
 import { cn } from '@/lib/utils'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 
 /** Files above this get a warning: a parsed workbook expands several-fold in memory. */
@@ -16,6 +17,9 @@ export function Dropzone({ onFile, onSample, busy }: {
   const [dragging, setDragging] = useState(false)
   const [warning, setWarning] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  // The folder art is a fixed-pixel drawing; below `sm` it is wider than a phone.
+  const compact = useMediaQuery('(max-width: 639px)')
+  const roomy = useMediaQuery('(min-width: 768px)')
 
   const accept = useCallback(
     (file: File | undefined) => {
@@ -40,7 +44,9 @@ export function Dropzone({ onFile, onSample, busy }: {
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => { e.preventDefault(); setDragging(false); accept(e.dataTransfer.files?.[0]) }}
         className={cn(
-          'group flex flex-col items-center gap-5 rounded-2xl border-2 border-dashed px-10 py-12 transition-colors',
+          'group flex w-full max-w-full flex-col items-center gap-4 rounded-2xl border-2 border-dashed sm:w-auto',
+          // Full padding from `md` up; a phone cannot spare 160px of it.
+          'px-6 py-10 sm:gap-5 sm:px-12 sm:py-16 md:px-20 md:py-24 transition-colors',
           'focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
           dragging ? 'border-foreground bg-muted' : 'border-border hover:border-foreground/40',
           busy && 'pointer-events-none opacity-60',
@@ -48,7 +54,7 @@ export function Dropzone({ onFile, onSample, busy }: {
         aria-label={t('drop.aria')}
       >
         <div className={cn('transition-transform', dragging && 'scale-110')}>
-          <FolderComponent color="black" size="lg" />
+          <FolderComponent color="black" size={compact ? 'sm' : roomy ? 'lg' : 'md'} />
         </div>
         <div className="space-y-1 text-center">
           <p className="text-base font-medium">{t('drop.title')}</p>

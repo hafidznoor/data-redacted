@@ -38,7 +38,7 @@ export function ColumnMapper({ profiles, plans, onChange, onBulk }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-muted-foreground text-sm">
           {t('columns.selected', { count: selectedCount, total: profiles.length })}
         </p>
@@ -57,7 +57,7 @@ export function ColumnMapper({ profiles, plans, onChange, onBulk }: Props) {
           return (
             <div
               key={profile.index}
-              className={cn('flex flex-wrap items-center gap-3 px-4 py-3', active && 'bg-muted/40')}
+              className={cn('flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:px-4', active && 'bg-muted/40')}
             >
               <Checkbox
                 checked={active}
@@ -67,7 +67,7 @@ export function ColumnMapper({ profiles, plans, onChange, onBulk }: Props) {
                 aria-label={t('columns.toggle', { header: profile.header })}
               />
 
-              <div className="min-w-[180px] flex-1">
+              <div className="min-w-[140px] flex-1 sm:min-w-[180px]">
                 <div className="flex items-center gap-2">
                   <span className="truncate text-sm font-medium">{profile.header}</span>
                   {profile.semantic !== 'unknown' && (
@@ -100,7 +100,7 @@ export function ColumnMapper({ profiles, plans, onChange, onBulk }: Props) {
                   value={plan!.mode!}
                   onValueChange={(mode) => onChange(profile.index, { mode: mode as RedactMode })}
                 >
-                  <SelectTrigger className="w-[140px]" size="sm">
+                  <SelectTrigger className="w-full sm:w-[140px]" size="sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
