@@ -22,7 +22,8 @@ const RULES = [
   { re: /\bnavigator\s*\.\s*sendBeacon\b/g, msg: 'navigator.sendBeacon' },
   { re: /\bnew\s+WebSocket\b/g, msg: 'WebSocket' },
   { re: /\bnew\s+EventSource\b/g, msg: 'EventSource' },
-  { re: /https?:\/\/(?!localhost|127\.0\.0\.1)[\w.-]+/g, msg: 'remote URL' },
+  // Captures the path too, so namespace URLs can be told apart from endpoints.
+  { re: /https?:\/\/(?!localhost|127\.0\.0\.1)[\w.-]+(?:\/[\w./-]*)?/g, msg: 'remote URL' },
   // Matched as domains and package names, not bare words. An earlier version
   // keyed on 'plausible' and fired on the English word in a code comment —
   // a guard that cries wolf on prose is a guard someone eventually deletes.
@@ -33,6 +34,13 @@ const RULES = [
 // Lines carrying this marker are reviewed exceptions — e.g. a URL that only ever
 // appears in human-readable copy, never in a request.
 const ALLOW = /privacy-guard-ok/
+
+/**
+ * XML namespace identifiers. These look like URLs and are never fetched by
+ * anything — they are just globally unique names for a vocabulary. Every inline
+ * SVG in the codebase carries one, so without this the guard is pure noise.
+ */
+const NAMESPACE_URLS = /^https?:\/\/www\.w3\.org\/(2000\/svg|1999\/xlink|1999\/xhtml|XML\/1998)/
 
 function walk(dir) {
   const out = []
@@ -52,7 +60,9 @@ for (const file of walk(ROOT)) {
     for (const { re, msg } of RULES) {
       re.lastIndex = 0
       const m = re.exec(line)
-      if (m) violations.push(`${file}:${i + 1}  ${msg} → ${m[0]}`)
+      if (!m) continue
+      if (msg === 'remote URL' && NAMESPACE_URLS.test(m[0])) continue
+      violations.push(`${file}:${i + 1}  ${msg} → ${m[0]}`)
     }
   })
 }

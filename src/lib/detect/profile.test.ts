@@ -112,3 +112,48 @@ describe('MODE_FOR_TYPE', () => {
     expect(MODE_FOR_TYPE.phone).toBe('partial')
   })
 })
+
+describe('embedded personal data', () => {
+  const rep = (v: string, n: number) => Array.from({ length: n }, () => v)
+
+  it('flags the notes column that burned the first test run', () => {
+    // Real output from the fixture: a name inside a sentence, in a column that
+    // every whole-value matcher happily ignores.
+    const values = Array.from({ length: 30 }, (_, i) => `Approved by Budi Santoso ${i}`)
+    const p = profileColumn(0, 'Catatan', values, 30)
+    expect(p.semantic).toBe('text')
+    expect(p.score).toBeGreaterThanOrEqual(0.5)
+    expect(p.reason).toContain('name')
+  })
+
+  it('flags a phone number buried in free text', () => {
+    const p = profileColumn(0, 'notes', rep('Customer asked to call 081234567890 tomorrow', 30), 30)
+    expect(p.semantic).toBe('text')
+    expect(p.reason).toContain('phone')
+  })
+
+  it('flags an email buried in free text', () => {
+    const p = profileColumn(0, 'keterangan', rep('forward to budi@perusahaan.co.id please', 30), 30)
+    expect(p.reason).toContain('email')
+  })
+
+  it('flags a NIK buried in free text', () => {
+    const p = profileColumn(0, 'memo', rep('verifikasi KTP 3175012501900001 selesai', 30), 30)
+    expect(p.reason).toContain('nik')
+  })
+
+  it('stays quiet on ordinary prose', () => {
+    const p = profileColumn(0, 'status', rep('Shipment delayed at the regional depot', 30), 30)
+    expect(p.score).toBeLessThan(0.5)
+  })
+
+  it('does not fire when only a few rows carry personal data', () => {
+    const values = [...rep('Routine check completed on schedule', 28), 'Approved by Budi Santoso', 'Approved by Siti Rahayu']
+    expect(profileColumn(0, 'notes', values, 30).score).toBeLessThan(0.5)
+  })
+
+  it('ignores short values, which the whole-value tests already cover', () => {
+    const p = profileColumn(0, 'code', rep('OK 123', 30), 30)
+    expect(p.score).toBeLessThan(0.5)
+  })
+})

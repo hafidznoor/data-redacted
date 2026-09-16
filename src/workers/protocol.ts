@@ -62,3 +62,29 @@ export type WorkerResponse =
   | { id: number; type: 'exported'; blob: Blob; audit: AuditReport; fileName: string }
   | { id: number; type: 'progress'; phase: string; pct: number }
   | { id: number; type: 'error'; message: string }
+
+/**
+ * Maps a request to the response it produces, so callers of `send` get the
+ * right result type without restating its shape. Hand-written generics drifted
+ * out of sync with the protocol the moment either side changed.
+ */
+type ResponseTypeFor = {
+  load: 'loaded'
+  analyze: 'analyzed'
+  preview: 'previewed'
+  export: 'exported'
+}
+
+export type ResponseFor<K extends WorkerRequest['type']> = Extract<
+  WorkerResponse,
+  { type: ResponseTypeFor[K] }
+>
+
+/**
+ * `Omit<Union, K>` collapses a discriminated union into one merged shape, which
+ * loses the per-variant fields. Distributing over the union keeps each variant
+ * intact so `{ type: 'export' }` still demands its own payload.
+ */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+export type WorkerRequestInput = DistributiveOmit<WorkerRequest, 'id'>

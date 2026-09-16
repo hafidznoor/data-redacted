@@ -6,7 +6,7 @@ leaves the tab — and that claim is enforced by the build, not just promised in
 
 - **Repo:** `hafidznoor/data-redacted` (public, MIT)
 - **URL:** `https://hafidznoor.github.io/data-redacted/`
-- **Status:** planning complete, all decisions resolved. Ready to scaffold.
+- **Status:** built and deployed. All five phases complete, 132 tests passing.
 
 ---
 
@@ -423,3 +423,73 @@ All Section 10 questions from the first draft are closed:
 | Default mode | **Hash**, unless detection suggests something better |
 
 Nothing is blocking Phase 0.
+
+---
+
+## 12. Built — deviations from this plan
+
+Three rare-ui components in §7.3 did not survive contact with the build. All
+three were replaced deliberately, not dropped by accident.
+
+| Planned | Shipped | Why |
+|---|---|---|
+| `step-player` for the wizard | Custom `Stepper` | Reading its source, it is a media transport — play, pause, replay — not a wizard indicator. It also pulls in `flubber` for SVG path morphing. Wrong component, real cost. |
+| `delete-button` as redact confirm | Labelled `Button` | It renders as an unlabelled trash icon: wrong metaphor for "produce a new file", and unreadable without hovering. Exporting is also not destructive — the original file is untouched — so a confirm step bought friction and no safety. |
+| `fluid-orb` hero | `matrix-orb` processing state | The hero slot disappeared with the landing page. matrix-orb's idle / listening / thinking states map onto parse → detect → redact. |
+
+`folder-component` (dropzone) and `animated-counter` (audit cell count) shipped
+as planned. `delete-button` is still in the repo, and was patched to accept
+`labels` so its hardcoded "Delete"/"Deleted"/"Kept" can be translated — worth
+keeping for a future genuinely destructive action.
+
+### Bugs the tests caught
+
+Four, all of which would have shipped silently:
+
+1. **`Date.parse` rejects day-first dates.** `25/01/1990` parses as month 25 and
+   returns NaN, so the standard Indonesian format was rejected outright — every
+   date column would have gone undetected. Components are range-checked now.
+2. **Small integers matched as Excel serial dates.** The serial window started at
+   1, so a `quantity` column of `1, 2, 3, 4` scored as dates. Floored at 1927.
+3. **`isCurrency` matches any number**, so every numeric column scored 1.0 as
+   money. Currency now requires a corroborating header.
+4. **NIK generation produced 17 digits.** `60 + random(45)` can reach 104, and
+   `padStart(2)` does not truncate. Caught by validating generated NIK against
+   the real validator.
+
+### Found by testing the real flow
+
+Running an actual Indonesian HR export through the finished UI surfaced a gap no
+unit test would have: the Payroll sheet contained `Approved by Budi Santoso` — a
+name inside a sentence, in a column every whole-value matcher ignores. Added
+embedded-PII scanning (§5.1) for names after role words, and for emails, phones
+and NIK appearing anywhere inside free text.
+
+### Also discovered during the build
+
+- **The shadcn CLI reads `tsconfig.json`, not `tsconfig.app.json`.** With paths
+  only in the app config it took `@/` literally and created a directory named
+  `@`, then wrote `import { cn } from "cn"` into every component. Paths now live
+  in both.
+- **`Omit<Union, K>` collapses a discriminated union.** The worker protocol needed
+  a distributive variant to keep each request variant's payload required.
+- **`Blob.text()` strips a leading BOM**, so a test asserting the CSV BOM was
+  checking something it could never see. Checked as bytes now.
+- **The privacy guard fired on the word "plausible"** in a code comment, because
+  Plausible is an analytics product. A guard that cries wolf on prose is one
+  somebody eventually deletes — rules are matched as domains and package names.
+- **Vite's modulePreload polyfill emits an inline `<script>`**, which would have
+  forced `'unsafe-inline'` into `script-src`. Disabled; modern browsers support
+  it natively.
+
+### Verified against a real file
+
+A 3-sheet, 400-row Indonesian HR export with a report title and blank spacer
+above the real headers:
+
+- header row correctly detected as row 3, title rows dropped from the output
+- all 7 columns detected at 100% confidence with sensible modes
+- all four transforms applied correctly end to end
+- **zero original values survived** in the redacted sheet
+- 400 distinct NIK produced 400 distinct hashes, no collisions
+- no formulas carried into the output

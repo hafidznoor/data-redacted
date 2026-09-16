@@ -1,7 +1,7 @@
 import type { CellValue, RedactMode, SemanticType } from '../redact/types'
 import type { Row } from '../excel/read'
 import { scoreHeader } from './lexicon'
-import { VALUE_TESTS } from './validators'
+import { VALUE_TESTS, findEmbedded } from './validators'
 import { isLowCardinality } from '../redact/hash'
 
 export * from './lexicon'
@@ -118,12 +118,27 @@ export function profileColumn(
     reason = `Weak header match for ${headerMatch.type}`
   }
 
-  // Free text that isn't anything recognisable is still worth offering, since
-  // notes and comment fields routinely hide personal data.
-  if (semantic === 'unknown' && sample.some((v) => String(v).length > 40)) {
-    semantic = 'text'
-    score = Math.max(score, 0.3)
-    reason = 'Long free text — may contain personal data'
+  // Nothing matched as a whole value — but personal data hides *inside* free
+  // text far more often than it sits alone in a tidy column.
+  if (semantic === 'unknown' || score < 0.5) {
+    const kinds = new Map<string, number>()
+    for (const v of sample) {
+      for (const kind of findEmbedded(v)) kinds.set(kind, (kinds.get(kind) ?? 0) + 1)
+    }
+    const [topKind, hits] = [...kinds.entries()].sort((a, b) => b[1] - a[1])[0] ?? []
+    const ratio = hits && sample.length ? hits / sample.length : 0
+
+    // A third is enough: notes columns are irregular by nature, and one in
+    // three rows carrying a phone number is still a column worth redacting.
+    if (topKind && ratio >= 0.33) {
+      semantic = 'text'
+      score = Math.max(score, Math.min(0.75, 0.4 + ratio * 0.4))
+      reason = `Contains ${topKind} inside free text (${Math.round(ratio * 100)}% of sampled rows)`
+    } else if (semantic === 'unknown' && sample.some((v) => String(v).length > 40)) {
+      semantic = 'text'
+      score = Math.max(score, 0.3)
+      reason = 'Long free text — may contain personal data'
+    }
   }
 
   return {

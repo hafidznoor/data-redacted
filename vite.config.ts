@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
 import fs from 'node:fs'
+import { createHash } from 'node:crypto'
+
+const BASE = '/data-redacted/'
 
 /**
  * The CSP is injected at build time only. In dev, Vite needs a websocket back to
@@ -45,6 +48,73 @@ function spaFallbackPlugin() {
   }
 }
 
+/**
+ * Emits a service worker that precaches the built assets.
+ *
+ * Hand-written rather than Workbox: the whole point of this app is that a
+ * sceptical person can read what it does, and ~50 lines they can audit beats a
+ * generated bundle they cannot. Being able to pull the network cable and watch
+ * the tool keep working is the most convincing privacy demonstration available.
+ */
+function serviceWorkerPlugin(base: string) {
+  return {
+    name: 'emit-service-worker',
+    apply: 'build' as const,
+    closeBundle() {
+      const dist = path.resolve(import.meta.dirname, 'dist')
+      if (!fs.existsSync(dist)) return
+
+      const assets: string[] = []
+      const walk = (dir: string, prefix = '') => {
+        for (const entry of fs.readdirSync(dir)) {
+          const full = path.join(dir, entry)
+          if (fs.statSync(full).isDirectory()) walk(full, `${prefix}${entry}/`)
+          else if (entry !== 'sw.js') assets.push(`${prefix}${entry}`)
+        }
+      }
+      walk(dist)
+
+      // The hash changes whenever any asset does, which is what retires the
+      // old cache on the next deploy.
+      const version = createHash('sha256').update(assets.join('|')).digest('hex').slice(0, 12)
+      const urls = [base, ...assets.map((a) => base + a)]
+
+      const sw = `// Generated at build time. Do not edit.
+const CACHE = 'data-redacted-${version}'
+const ASSETS = ${JSON.stringify(urls, null, 2)}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()))
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim()),
+  )
+})
+
+// Cache-first, same-origin only. A request to any other origin is not something
+// this app makes, so it is refused rather than forwarded.
+self.addEventListener('fetch', (event) => {
+  const { request } = event
+  if (request.method !== 'GET') return
+  if (new URL(request.url).origin !== self.location.origin) return
+
+  event.respondWith(
+    caches.match(request).then((hit) => {
+      if (hit) return hit
+      return fetch(request).catch(() => caches.match('${base}'))
+    }),
+  )
+})
+`
+      fs.writeFileSync(path.join(dist, 'sw.js'), sw)
+    },
+  }
+}
+
 function cspPlugin() {
   return {
     name: 'inject-csp',
@@ -59,8 +129,8 @@ function cspPlugin() {
 }
 
 export default defineConfig({
-  base: '/data-redacted/',
-  plugins: [react(), tailwindcss(), cspPlugin(), spaFallbackPlugin()],
+  base: BASE,
+  plugins: [react(), tailwindcss(), cspPlugin(), spaFallbackPlugin(), serviceWorkerPlugin(BASE)],
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, './src') },
   },

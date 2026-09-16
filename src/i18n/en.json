@@ -1,0 +1,125 @@
+{
+  "app": {
+    "title": "data-redacted",
+    "tagline": "Redact spreadsheet columns without uploading anything",
+    "badge": "Nothing uploaded · works offline",
+    "privacyLink": "How this works",
+    "back": "Back",
+    "next": "Continue",
+    "startOver": "Start over",
+    "language": "Language"
+  },
+  "steps": {
+    "drop": "File",
+    "sheets": "Sheets",
+    "header": "Headers",
+    "columns": "Columns",
+    "export": "Export"
+  },
+  "drop": {
+    "title": "Drop an Excel file here",
+    "subtitle": "or click to choose · .xlsx",
+    "aria": "Choose an Excel file to redact",
+    "privacy": "Your file is read in this browser tab and never sent anywhere. No upload, no server, no analytics — you can disconnect from the internet and this still works.",
+    "wrongType": "That does not look like an .xlsx file. Other formats are coming later.",
+    "large": "That is a large file. Everything still runs locally, but your browser may need a moment — and very large workbooks can exhaust the tab's memory.",
+    "reading": "Reading the workbook…"
+  },
+  "sheets": {
+    "title": "Which sheets hold data you need to redact?",
+    "dimensions": "{{rows}} rows · {{cols}} columns",
+    "rowsOnly": "({{rows}} rows)",
+    "scopeTitle": "What goes into the downloaded file?",
+    "recommended": "Safer",
+    "scope": {
+      "selected-only": {
+        "label": "Only the sheets I picked",
+        "help": "Everything else is left out of the download. Nothing you have not reviewed can travel with the file."
+      },
+      "whole-workbook": {
+        "label": "The whole workbook, unpicked sheets unchanged",
+        "help": "Keeps the file structure intact, but sheets you did not review are copied across exactly as they are."
+      }
+    },
+    "passThroughBody": "These sheets go into the downloaded file exactly as they are now. Anyone you send it to will see their original contents:",
+    "passThroughTitle_one": "{{count}} sheet will be copied without being redacted",
+    "passThroughTitle_other": "{{count}} sheets will be copied without being redacted"
+  },
+  "header": {
+    "title": "Where are the column headers?",
+    "label": "Header row in \"{{sheet}}\"",
+    "row": "Row {{n}}",
+    "blank": "(empty row)",
+    "detected": "Detected row {{n}} as the header, {{pct}}% confidence. Change it if that looks wrong.",
+    "inconclusive": "Could not tell which row holds the headers — several rows look similar. Please pick the right one."
+  },
+  "columns": {
+    "title": "What should happen to each column?",
+    "selected": "{{count}} of {{total}} columns will be redacted",
+    "selectAll": "Select all",
+    "clear": "Clear",
+    "toggle": "Redact column {{header}}",
+    "empty": "no values",
+    "lowCardinality": "Weak",
+    "lowCardinalityHelp": "This column has only {{count}} distinct values, so hashing will not hide them — anyone can match the buckets back by counting how often each appears. Blank is the safer choice here.",
+    "disclaimer": "These are suggestions from pattern matching, not a guarantee. Check every column yourself — you are responsible for what ends up in the file."
+  },
+  "mode": {
+    "blank": "Blank",
+    "partial": "Partial",
+    "hash": "Hash",
+    "fake": "Fake data"
+  },
+  "semantic": {
+    "email": "email",
+    "phone": "phone",
+    "nik": "NIK",
+    "npwp": "NPWP",
+    "card": "card",
+    "date": "date",
+    "name": "name",
+    "address": "address",
+    "currency": "amount",
+    "text": "free text",
+    "unknown": "unknown"
+  },
+  "preview": {
+    "title": "Check the result before you download",
+    "empty": "Nothing to preview yet — pick at least one column.",
+    "footer": "Showing {{count}} sample rows. The download covers every row."
+  },
+  "export": {
+    "title": "Download",
+    "format": "Format",
+    "xlsx": "Excel (.xlsx)",
+    "csv": "CSV",
+    "csvNote": "CSV holds one sheet only — the first one you selected.",
+    "locale": "Fake data language",
+    "localeId": "Indonesian",
+    "localeEn": "English",
+    "run": "Redact and download",
+    "working": "Redacting…",
+    "done": "Downloaded",
+    "confirmTitle": "Ready to redact",
+    "confirmPassThrough": "Note: {{sheets}} will be copied through unredacted.",
+    "confirmColumns_one": "{{count}} column",
+    "confirmColumns_other": "{{count}} columns",
+    "confirmSheets_one": "across 1 sheet",
+    "confirmSheets_other": "across {{count}} sheets"
+  },
+  "audit": {
+    "title": "What was changed",
+    "download": "Save report",
+    "cellsChanged": "Cells changed",
+    "sheetsRedacted": "Sheets redacted",
+    "sheetsPassed": "Passed through",
+    "sheetsDropped": "Left out",
+    "passedWarning": "Unredacted sheets included: {{sheets}}",
+    "sourceHash": "Source SHA-256",
+    "outputHash": "Output SHA-256"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "generic": "The file could not be processed. It may be corrupt or password-protected."
+  }
+}

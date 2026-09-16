@@ -1,0 +1,122 @@
+{
+  "app": {
+    "title": "data-redacted",
+    "tagline": "Sensor kolom spreadsheet tanpa mengunggah apa pun",
+    "badge": "Tidak diunggah · bisa offline",
+    "privacyLink": "Cara kerjanya",
+    "back": "Kembali",
+    "next": "Lanjut",
+    "startOver": "Mulai lagi",
+    "language": "Bahasa"
+  },
+  "steps": {
+    "drop": "Berkas",
+    "sheets": "Sheet",
+    "header": "Header",
+    "columns": "Kolom",
+    "export": "Unduh"
+  },
+  "drop": {
+    "title": "Letakkan berkas Excel di sini",
+    "subtitle": "atau klik untuk memilih · .xlsx",
+    "aria": "Pilih berkas Excel yang akan disensor",
+    "privacy": "Berkas Anda dibaca di tab peramban ini dan tidak pernah dikirim ke mana pun. Tanpa unggah, tanpa server, tanpa analitik — putuskan koneksi internet pun aplikasi ini tetap berjalan.",
+    "wrongType": "Sepertinya itu bukan berkas .xlsx. Format lain menyusul nanti.",
+    "large": "Berkas ini besar. Semua tetap diproses di perangkat Anda, tetapi peramban butuh waktu — dan berkas yang sangat besar bisa menghabiskan memori tab.",
+    "reading": "Membaca berkas…"
+  },
+  "sheets": {
+    "title": "Sheet mana yang berisi data yang perlu disensor?",
+    "dimensions": "{{rows}} baris · {{cols}} kolom",
+    "rowsOnly": "({{rows}} baris)",
+    "scopeTitle": "Apa yang masuk ke berkas hasil unduhan?",
+    "recommended": "Lebih aman",
+    "scope": {
+      "selected-only": {
+        "label": "Hanya sheet yang saya pilih",
+        "help": "Sheet lain tidak ikut diunduh. Tidak ada data yang belum Anda periksa yang bisa ikut terbawa."
+      },
+      "whole-workbook": {
+        "label": "Seluruh workbook, sheet lain apa adanya",
+        "help": "Struktur berkas tetap utuh, tetapi sheet yang tidak Anda periksa disalin persis seperti aslinya."
+      }
+    },
+    "passThroughBody": "Sheet berikut masuk ke berkas unduhan persis seperti sekarang. Siapa pun yang menerimanya akan melihat isi aslinya:",
+    "passThroughTitle_other": "{{count}} sheet akan disalin tanpa disensor"
+  },
+  "header": {
+    "title": "Di baris mana header kolomnya?",
+    "label": "Baris header di \"{{sheet}}\"",
+    "row": "Baris {{n}}",
+    "blank": "(baris kosong)",
+    "detected": "Terdeteksi baris {{n}} sebagai header, keyakinan {{pct}}%. Ubah bila keliru.",
+    "inconclusive": "Tidak dapat memastikan baris mana yang berisi header — beberapa baris terlihat mirip. Silakan pilih sendiri."
+  },
+  "columns": {
+    "title": "Apa yang harus dilakukan pada tiap kolom?",
+    "selected": "{{count}} dari {{total}} kolom akan disensor",
+    "selectAll": "Pilih semua",
+    "clear": "Kosongkan",
+    "toggle": "Sensor kolom {{header}}",
+    "empty": "tidak ada isi",
+    "lowCardinality": "Lemah",
+    "lowCardinalityHelp": "Kolom ini hanya punya {{count}} nilai berbeda, sehingga hash tidak benar-benar menyembunyikannya — siapa pun bisa mencocokkan kembali dengan menghitung frekuensi kemunculannya. Pilihan Blank lebih aman di sini.",
+    "disclaimer": "Ini saran dari pencocokan pola, bukan jaminan. Periksa sendiri setiap kolom — Anda yang bertanggung jawab atas isi berkas akhirnya."
+  },
+  "mode": {
+    "blank": "Kosongkan",
+    "partial": "Sebagian",
+    "hash": "Hash",
+    "fake": "Data palsu"
+  },
+  "semantic": {
+    "email": "email",
+    "phone": "telepon",
+    "nik": "NIK",
+    "npwp": "NPWP",
+    "card": "kartu",
+    "date": "tanggal",
+    "name": "nama",
+    "address": "alamat",
+    "currency": "nominal",
+    "text": "teks bebas",
+    "unknown": "tidak dikenali"
+  },
+  "preview": {
+    "title": "Periksa hasilnya sebelum mengunduh",
+    "empty": "Belum ada yang bisa ditinjau — pilih minimal satu kolom.",
+    "footer": "Menampilkan {{count}} baris contoh. Unduhan mencakup seluruh baris."
+  },
+  "export": {
+    "title": "Unduh",
+    "format": "Format",
+    "xlsx": "Excel (.xlsx)",
+    "csv": "CSV",
+    "csvNote": "CSV hanya memuat satu sheet — yang pertama Anda pilih.",
+    "locale": "Bahasa data palsu",
+    "localeId": "Indonesia",
+    "localeEn": "Inggris",
+    "run": "Sensor dan unduh",
+    "working": "Menyensor…",
+    "done": "Terunduh",
+    "confirmTitle": "Siap disensor",
+    "confirmPassThrough": "Catatan: {{sheets}} akan disalin tanpa disensor.",
+    "confirmColumns_other": "{{count}} kolom",
+    "confirmSheets_other": "pada {{count}} sheet"
+  },
+  "audit": {
+    "title": "Yang telah diubah",
+    "download": "Simpan laporan",
+    "cellsChanged": "Sel diubah",
+    "sheetsRedacted": "Sheet disensor",
+    "sheetsPassed": "Disalin apa adanya",
+    "sheetsDropped": "Tidak disertakan",
+    "passedWarning": "Sheet tanpa sensor yang ikut: {{sheets}}",
+    "sourceHash": "SHA-256 sumber",
+    "outputHash": "SHA-256 hasil"
+  },
+  "error": {
+    "title": "Terjadi kesalahan",
+    "generic": "Berkas tidak dapat diproses. Mungkin rusak atau terkunci kata sandi."
+  }
+}

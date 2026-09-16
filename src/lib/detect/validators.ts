@@ -163,3 +163,36 @@ export const VALUE_TESTS: Array<{ type: SemanticType; test: (v: CellValue) => bo
   { type: 'name', test: (v) => looksLikeName(String(v)) },
   { type: 'currency', test: isCurrency, requiresHeader: true },
 ]
+
+/**
+ * Embedded personal data.
+ *
+ * The tests above ask "is this value an email?". These ask "does this value
+ * *contain* one?" — which is how personal data actually hides in the wild:
+ * free-text notes like "Approved by Budi Santoso" or "call her on 0812...".
+ * A column of those looks unremarkable to a whole-value matcher and sails
+ * through unredacted, which is the most damaging kind of miss.
+ */
+const EMBEDDED = [
+  { kind: 'email', re: /[^\s@]+@[^\s@.]+\.[a-z]{2,}/i },
+  { kind: 'phone', re: /(?:\+?62|0)8\d{2}[\s.-]?\d{3,4}[\s.-]?\d{3,5}/ },
+  { kind: 'nik', re: /\b\d{16}\b/ },
+  // A capitalised pair after a preposition or role word: "Approved by Budi
+  // Santoso", "PIC: Siti Rahayu". Narrow on purpose — a looser rule would fire
+  // on every sentence that happens to start two words with capitals.
+  {
+    kind: 'name',
+    re: /\b(?:by|oleh|dari|kepada|a\.?n\.?|atas nama|pic|contact|hubungi|penanggung jawab)\b[:\s]+[A-Z][a-z]+\s+[A-Z][a-z]+/i,
+  },
+] as const
+
+export type EmbeddedKind = (typeof EMBEDDED)[number]['kind']
+
+/** Which kinds of personal data appear inside this value, if any. */
+export function findEmbedded(value: CellValue): EmbeddedKind[] {
+  const s = String(value ?? '')
+  // Short values are handled well by the whole-value tests; scanning them here
+  // only adds false positives.
+  if (s.length < 12) return []
+  return EMBEDDED.filter(({ re }) => re.test(s)).map(({ kind }) => kind)
+}
