@@ -87,6 +87,7 @@
   "preview": {
     "title": "Check the result before you download",
     "empty": "Nothing to preview yet — pick at least one column.",
+    "loading": "Building the preview…",
     "footer": "Showing {{count}} sample rows. The download covers every row."
   },
   "export": {

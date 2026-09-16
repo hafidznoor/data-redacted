@@ -12,6 +12,7 @@ import { ColumnMapper } from '@/components/tool/ColumnMapper'
 import { PreviewTable } from '@/components/tool/PreviewTable'
 import { AuditSummary } from '@/components/tool/AuditSummary'
 import { Stepper } from '@/components/tool/Stepper'
+import { SheetTabs } from '@/components/tool/SheetTabs'
 import type { Step } from '@/components/tool/steps'
 import { useRedactionWorker } from '@/lib/useRedactionWorker'
 import { setLanguage, LANGUAGES, type Language } from '@/i18n'
@@ -38,6 +39,7 @@ export default function App() {
 
   const [step, setStep] = useState<Step>('drop')
   const [busy, setBusy] = useState(false)
+  const [previewLoading, setPreviewLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [fileName, setFileName] = useState('')
@@ -57,6 +59,7 @@ export default function App() {
     setStep('drop'); setSheets([]); setGuesses({}); setSelected(new Set())
     setSheetState({}); setActiveSheet(''); setPreview(null); setResult(null)
     setError(null); setProgress(null); setFileName(''); setScope('selected-only')
+    setPreviewLoading(false)
   }
 
   /** Load a sheet's headers and column profiles, once, on demand. */
@@ -187,23 +190,53 @@ export default function App() {
 
   const totalColumns = jobs.reduce((n, j) => n + j.plans.filter((p) => p.mode !== null).length, 0)
 
+  const runPreview = useCallback(
+    async (sheet: string) => {
+      const s = sheetState[sheet]
+      if (!s) return null
+      return send({
+        type: 'preview',
+        sheet,
+        headerRow: s.headerRow,
+        plans: s.plans.map((p) => ({ ...p, options: { ...p.options, locale } })),
+        limit: PREVIEW_ROWS,
+      })
+    },
+    [sheetState, send, locale],
+  )
+
   const loadPreview = async () => {
     if (!state) return
     setBusy(true)
     try {
-      const res = await send({
-        type: 'preview',
-        sheet: activeSheet,
-        headerRow: state.headerRow,
-        plans: state.plans.map((p) => ({ ...p, options: { ...p.options, locale } })),
-        limit: PREVIEW_ROWS,
-      })
-      setPreview(res)
+      const res = await runPreview(activeSheet)
+      if (res) setPreview(res)
       setStep('export')
     } catch (e) {
       setError(e instanceof Error ? e.message : t('error.generic'))
     } finally {
       setBusy(false)
+    }
+  }
+
+  /**
+   * Swap the previewed sheet without leaving the export step.
+   *
+   * Deliberately not the page-wide `busy` flag: that unmounts the whole step,
+   * so switching sheets would blank the export controls and bring them back.
+   */
+  const previewSheet = async (sheet: string) => {
+    setActiveSheet(sheet)
+    setPreview(null)
+    setPreviewLoading(true)
+    setError(null)
+    try {
+      const res = await runPreview(sheet)
+      if (res) setPreview(res)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('error.generic'))
+    } finally {
+      setPreviewLoading(false)
     }
   }
 
@@ -378,20 +411,11 @@ export default function App() {
             <section className="space-y-5">
               <h2 className="text-lg font-medium">{t('columns.title')}</h2>
 
-              {selectedList.length > 1 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedList.map((s) => (
-                    <Button
-                      key={s.name}
-                      size="sm"
-                      variant={s.name === activeSheet ? 'default' : 'outline'}
-                      onClick={() => { setActiveSheet(s.name); setPreview(null) }}
-                    >
-                      {s.name}
-                    </Button>
-                  ))}
-                </div>
-              )}
+              <SheetTabs
+                sheets={selectedList}
+                active={activeSheet}
+                onSelect={(name) => { setActiveSheet(name); setPreview(null) }}
+              />
 
               <ColumnMapper
                 profiles={state.profiles}
@@ -413,8 +437,27 @@ export default function App() {
             <section className="space-y-6">
               <h2 className="text-lg font-medium">{t('preview.title')}</h2>
 
-              {preview && (
-                <PreviewTable headers={preview.headers} rows={preview.rows} changedColumns={changedColumns} />
+              {/*
+                The export covers every selected sheet, so every selected sheet
+                has to be checkable here — not just whichever one was open on the
+                column step.
+              */}
+              <SheetTabs
+                sheets={selectedList}
+                active={activeSheet}
+                disabled={previewLoading}
+                onSelect={previewSheet}
+              />
+
+              {previewLoading ? (
+                <div className="flex flex-col items-center gap-3 py-10">
+                  <MatrixOrb state="thinking" size={48} />
+                  <p className="text-muted-foreground text-xs">{t('preview.loading')}</p>
+                </div>
+              ) : (
+                preview && (
+                  <PreviewTable headers={preview.headers} rows={preview.rows} changedColumns={changedColumns} />
+                )
               )}
 
               <div className="grid gap-4 sm:grid-cols-2">
