@@ -37,13 +37,13 @@ export function SheetPicker({ sheets, selected, onToggle, scope, onScopeChange }
             <label
               key={sheet.name}
               className={cn(
-                'flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors',
+                'flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-3 transition-colors sm:px-4',
                 isSelected ? 'border-foreground/30 bg-muted' : 'hover:bg-muted/50',
               )}
             >
               <Checkbox checked={isSelected} onCheckedChange={() => onToggle(sheet.name)} />
               <span className="flex-1 truncate text-sm font-medium">{sheet.name}</span>
-              <span className="text-muted-foreground text-xs tabular-nums">
+              <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
                 {t('sheets.dimensions', { rows: sheet.rowCount, cols: sheet.colCount })}
               </span>
             </label>
@@ -58,7 +58,7 @@ export function SheetPicker({ sheets, selected, onToggle, scope, onScopeChange }
           <label
             key={value}
             className={cn(
-              'flex cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 transition-colors',
+              'flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-3 transition-colors sm:px-4',
               scope === value ? 'border-foreground/30 bg-muted' : 'hover:bg-muted/50',
             )}
           >

@@ -258,13 +258,18 @@ export default function App() {
     <TooltipProvider delayDuration={200}>
       <div className="min-h-dvh">
         <header className="border-b">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-3">
-            <div className="flex-1">
-              <h1 className="font-mono text-sm font-semibold tracking-tight">{t('app.title')}</h1>
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-4 py-3 sm:gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate font-mono text-sm font-semibold tracking-tight">{t('app.title')}</h1>
               <p className="text-muted-foreground text-xs">{t('app.tagline')}</p>
             </div>
 
-            <span className="text-success bg-success/10 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium">
+            {/*
+              On a phone the badge drops to its own full-width line instead of
+              being squeezed: it is the product's core claim, so truncating it is
+              the one thing this header must not do.
+            */}
+            <span className="text-success bg-success/10 order-last flex w-full items-center justify-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium sm:order-none sm:w-auto sm:justify-start">
               <ShieldCheck className="size-3.5" />
               {t('app.badge')}
             </span>
@@ -273,7 +278,7 @@ export default function App() {
               value={i18n.language.startsWith('id') ? 'id' : 'en'}
               onValueChange={(v) => setLanguage(v as Language)}
             >
-              <SelectTrigger size="sm" className="w-[150px]" aria-label={t("app.language")}>
+              <SelectTrigger size="sm" className="w-[136px] shrink-0 sm:w-[150px]" aria-label={t("app.language")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -285,9 +290,9 @@ export default function App() {
           </div>
         </header>
 
-        <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
+        <main className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:py-8">
           {step !== 'drop' && (
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
               <Stepper current={step} reachable={reachable} onJump={setStep} />
               <div className="flex items-center gap-3">
                 <span className="text-muted-foreground max-w-[220px] truncate font-mono text-xs">{fileName}</span>
@@ -314,7 +319,7 @@ export default function App() {
           )}
 
           {step === 'drop' && !busy && (
-            <div className="py-12">
+            <div className="py-4 sm:py-12">
               <Dropzone onFile={handleFile} onSample={handleSample} busy={busy} />
             </div>
           )}
@@ -439,7 +444,7 @@ export default function App() {
                 </label>
               </div>
 
-              <div className="bg-muted/40 flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4">
+              <div className="bg-muted/40 flex flex-wrap items-center justify-between gap-4 rounded-lg border p-3 sm:p-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">{t('export.confirmTitle')}</p>
                   <p className="text-muted-foreground text-xs">
@@ -460,7 +465,7 @@ export default function App() {
                   destructive — the original file is untouched — so a confirm step
                   would add friction without buying any safety.
                 */}
-                <Button size="lg" onClick={runExport} disabled={busy || !totalColumns}>
+                <Button size="lg" className="w-full sm:w-auto" onClick={runExport} disabled={busy || !totalColumns}>
                   <Download className="size-4" />
                   {busy ? t('export.working') : t('export.run')}
                 </Button>
