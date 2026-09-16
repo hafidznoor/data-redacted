@@ -86,6 +86,7 @@
   "preview": {
     "title": "Periksa hasilnya sebelum mengunduh",
     "empty": "Belum ada yang bisa ditinjau — pilih minimal satu kolom.",
+    "loading": "Menyiapkan pratinjau…",
     "footer": "Menampilkan {{count}} baris contoh. Unduhan mencakup seluruh baris."
   },
   "export": {
