@@ -131,6 +131,13 @@ function cspPlugin() {
 export default defineConfig({
   base: BASE,
   plugins: [react(), tailwindcss(), cspPlugin(), spaFallbackPlugin(), serviceWorkerPlugin(BASE)],
+  /**
+   * One fixed port, and a hard failure if it is already taken. Vite's default is
+   * to hop to the next free port, which quietly leaves a second dev server on an
+   * address nobody is looking at. strictPort turns that into an error instead.
+   */
+  server: { port: 3030, strictPort: true },
+  preview: { port: 3030, strictPort: true },
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, './src') },
   },
