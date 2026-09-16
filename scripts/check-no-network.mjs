@@ -23,7 +23,10 @@ const RULES = [
   { re: /\bnew\s+WebSocket\b/g, msg: 'WebSocket' },
   { re: /\bnew\s+EventSource\b/g, msg: 'EventSource' },
   { re: /https?:\/\/(?!localhost|127\.0\.0\.1)[\w.-]+/g, msg: 'remote URL' },
-  { re: /\bgtag\b|\bga\(|googletagmanager|google-analytics|plausible|posthog|sentry|mixpanel|segment\.com/gi, msg: 'analytics/telemetry' },
+  // Matched as domains and package names, not bare words. An earlier version
+  // keyed on 'plausible' and fired on the English word in a code comment —
+  // a guard that cries wolf on prose is a guard someone eventually deletes.
+  { re: /googletagmanager|google-analytics|plausible\.io|posthog[-.]|@sentry\/|sentry\.io|mixpanel[-.]|segment\.com|amplitude[-.]js|heap\.io|\bgtag\s*\(/gi, msg: 'analytics/telemetry' },
   { re: /fonts\.(googleapis|gstatic)\.com/g, msg: 'Google Fonts' },
 ]
 
