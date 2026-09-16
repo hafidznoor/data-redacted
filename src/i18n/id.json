@@ -23,7 +23,8 @@
     "privacy": "Berkas Anda dibaca di tab peramban ini dan tidak pernah dikirim ke mana pun. Tanpa unggah, tanpa server, tanpa analitik — putuskan koneksi internet pun aplikasi ini tetap berjalan.",
     "wrongType": "Sepertinya itu bukan berkas .xlsx. Format lain menyusul nanti.",
     "large": "Berkas ini besar. Semua tetap diproses di perangkat Anda, tetapi peramban butuh waktu — dan berkas yang sangat besar bisa menghabiskan memori tab.",
-    "reading": "Membaca berkas…"
+    "reading": "Membaca berkas…",
+    "sample": "atau coba dengan berkas contoh"
   },
   "sheets": {
     "title": "Sheet mana yang berisi data yang perlu disensor?",

@@ -7,7 +7,11 @@ import { useTranslation } from 'react-i18next'
 export const SIZE_WARN_BYTES = 50 * 1024 * 1024
 const ACCEPT = '.xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
-export function Dropzone({ onFile, busy }: { onFile: (file: File) => void; busy?: boolean }) {
+export function Dropzone({ onFile, onSample, busy }: {
+  onFile: (file: File) => void
+  onSample: () => void
+  busy?: boolean
+}) {
   const { t } = useTranslation()
   const [dragging, setDragging] = useState(false)
   const [warning, setWarning] = useState<string | null>(null)
@@ -59,6 +63,19 @@ export function Dropzone({ onFile, busy }: { onFile: (file: File) => void; busy?
         className="sr-only"
         onChange={(e) => accept(e.target.files?.[0])}
       />
+
+      {/*
+        A sample file so nobody has to risk their own data to find out what the
+        tool does. Loaded from our own origin, so connect-src 'self' covers it.
+      */}
+      <button
+        type="button"
+        disabled={busy}
+        onClick={onSample}
+        className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-4 transition-colors"
+      >
+        {t('drop.sample')}
+      </button>
 
       {/* The privacy claim has to land here — there is no landing page carrying it. */}
       <p className="text-muted-foreground max-w-sm text-center text-xs leading-relaxed">

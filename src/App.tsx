@@ -85,6 +85,20 @@ export default function App() {
     [send, sheetState, locale],
   )
 
+  /** Load the bundled sample so people can try the tool without their own data. */
+  const handleSample = async () => {
+    setBusy(true); setError(null)
+    try {
+      const url = `${import.meta.env.BASE_URL}sample/contoh-karyawan.xlsx`
+      const res = await fetch(url) // privacy-guard-ok: our own origin, covered by connect-src 'self'
+      if (!res.ok) throw new Error(t('error.generic'))
+      await handleFile(new File([await res.arrayBuffer()], 'contoh-karyawan.xlsx'))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('error.generic'))
+      setBusy(false)
+    }
+  }
+
   const handleFile = async (file: File) => {
     setBusy(true); setError(null)
     try {
@@ -301,7 +315,7 @@ export default function App() {
 
           {step === 'drop' && !busy && (
             <div className="py-12">
-              <Dropzone onFile={handleFile} busy={busy} />
+              <Dropzone onFile={handleFile} onSample={handleSample} busy={busy} />
             </div>
           )}
 

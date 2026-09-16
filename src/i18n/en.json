@@ -23,7 +23,8 @@
     "privacy": "Your file is read in this browser tab and never sent anywhere. No upload, no server, no analytics — you can disconnect from the internet and this still works.",
     "wrongType": "That does not look like an .xlsx file. Other formats are coming later.",
     "large": "That is a large file. Everything still runs locally, but your browser may need a moment — and very large workbooks can exhaust the tab's memory.",
-    "reading": "Reading the workbook…"
+    "reading": "Reading the workbook…",
+    "sample": "or try it with a sample file"
   },
   "sheets": {
     "title": "Which sheets hold data you need to redact?",
