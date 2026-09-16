@@ -493,3 +493,23 @@ above the real headers:
 - **zero original values survived** in the redacted sheet
 - 400 distinct NIK produced 400 distinct hashes, no collisions
 - no formulas carried into the output
+
+### Verified on the live production build
+
+The dev server cannot test the CSP, because it is injected at build time only.
+Run against `https://hafidznoor.github.io/data-redacted/` with the real policy:
+
+- module worker boots under `worker-src 'self' blob:`
+- Motion's inline styles render correctly under `style-src 'unsafe-inline'`
+- sample file loads under `connect-src 'self'`
+- blob download works, producing a 29KB xlsx
+- **4 resource requests in total, every one same-origin, none to any third party**
+- no console errors and no CSP violation reports
+- service worker active and scoped to `/data-redacted/`, precaching the page,
+  the worker bundle and the sample — so offline is real, not aspirational
+- audit reported 840 cells changed across 7 columns, with both file hashes
+
+One thing the service worker changes: after a deploy, a returning visitor gets
+the cached build until the new worker activates. `skipWaiting` plus
+`clients.claim` makes that the next load rather than the next session, but it is
+worth knowing when someone reports "the fix isn't live".
